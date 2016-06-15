@@ -730,6 +730,14 @@ class HarvestApi
         return $this->performGet($url, true);
     }
 
+    public function getActiveProjects($updated_since = null)
+    {
+        return $this->getProjects($updated_since)->get('data')
+            ->filter(function ($project) {
+                return $project->project->active == true;
+            });
+    }
+
     /**
      * get all projects of a client
      *
