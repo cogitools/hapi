@@ -1028,8 +1028,10 @@ class HarvestApi
 
     public function getActiveUsers()
     {
-        $users = $this->getUsers();
-
+        return $this->getUsers()->get('data')
+            ->filter(function ($user) {  
+                return $user->user->is_active == true;
+            });
     }
 
     /**
