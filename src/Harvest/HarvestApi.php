@@ -76,7 +76,7 @@ class HarvestApi
      */
     protected $token = null;
 
-    protected $returnDataType = 'xml';
+    protected $returnDataType = 'json';
 
     /**
      * @var string Harvest Account Name
