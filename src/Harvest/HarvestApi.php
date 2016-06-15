@@ -2745,6 +2745,9 @@ class HarvestApi
     protected function parseItems($xml)
     {
         if ($this->returnDataType == 'json') {
+            if (class_exists('\\Illuminate\\Support\\Collection')) {
+                return new \Illuminate\Support\Collection(json_decode($xml));
+            }
             return json_decode($xml);
         }
         $items = array();
