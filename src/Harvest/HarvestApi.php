@@ -432,6 +432,14 @@ class HarvestApi
         return $this->performGet($url, true);
     }
 
+    public function getActiveClients($updated_since = null)
+    {
+        return $this->getClients($updated_since)->get('data')
+            ->filter(function ($client) {
+                return $client->client->active == true;
+            });
+    }
+
     /**
      * get a single client
      *
@@ -1037,7 +1045,7 @@ class HarvestApi
     public function getActiveUsers()
     {
         return $this->getUsers()->get('data')
-            ->filter(function ($user) {  
+            ->filter(function ($user) {
                 return $user->user->is_active == true;
             });
     }
