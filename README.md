@@ -14,6 +14,19 @@ PHP Wrapper Library for the Harvest API.
 Usage
 -----
 
+New Way (using access_token provided by oAuth2):
+
+```php
+<?php
+require __DIR__ . '/vendor/autoload.php';
+
+$api = new Harvest\HarvestApi();
+$api->setToken($token);
+
+$result = $api->getClient(12345);
+```
+
+Old way (using password):
 ```php
 <?php
 require __DIR__ . '/vendor/autoload.php';

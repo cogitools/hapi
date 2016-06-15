@@ -2,25 +2,25 @@
 
 namespace Harvest;
 
-use Harvest\Model\Client,
-    Harvest\Model\Contact,
-    Harvest\Model\DayEntry,
-    Harvest\Model\Expense,
-    Harvest\Model\ExpenseCategory,
-    Harvest\Model\Invoice,
-    Harvest\Model\InvoiceItemCategory,
-    Harvest\Model\InvoiceMessage,
-    Harvest\Model\Payment,
-    Harvest\Model\Project,
-    Harvest\Model\Result,
-    Harvest\Model\Task,
-    Harvest\Model\User,
-    Harvest\Model\UserAssignment,
-    Harvest\Model\TaskAssignment,
-    Harvest\Model\DailyActivity,
-    Harvest\Model\Timer,
-    Harvest\Model\Throttle,
-    Harvest\Model\Range;
+use Harvest\Model\Client;
+use Harvest\Model\Contact;
+use Harvest\Model\DayEntry;
+use Harvest\Model\Expense;
+use Harvest\Model\ExpenseCategory;
+use Harvest\Model\Invoice;
+use Harvest\Model\InvoiceItemCategory;
+use Harvest\Model\InvoiceMessage;
+use Harvest\Model\Payment;
+use Harvest\Model\Project;
+use Harvest\Model\Result;
+use Harvest\Model\Task;
+use Harvest\Model\User;
+use Harvest\Model\UserAssignment;
+use Harvest\Model\TaskAssignment;
+use Harvest\Model\DailyActivity;
+use Harvest\Model\Timer;
+use Harvest\Model\Throttle;
+use Harvest\Model\Range;
 use Harvest\Model\Invoice\Filter;
 
 /**
@@ -49,8 +49,8 @@ use Harvest\Model\Invoice\Filter;
  * </code>
  *
  */
- class HarvestApi
- {
+class HarvestApi
+{
     /**
      *  WAIT
      */
@@ -70,6 +70,11 @@ use Harvest\Model\Invoice\Filter;
      * @var string User Password
      */
     protected $_password;
+
+    /**
+     * @var string Access Token
+     */
+    protected $token = null;
 
     /**
      * @var string Harvest Account Name
@@ -121,6 +126,11 @@ use Harvest\Model\Invoice\Filter;
     public function setPassword($password)
     {
         $this->_password = $password;
+    }
+
+    public function setToken($token)
+    {
+        $this->token = $token;
     }
 
     /**
@@ -2465,7 +2475,7 @@ use Harvest\Model\Invoice\Filter;
     {
         if (is_null($updated_since)) {
             return "";
-        } elseif ($updated_since instanceOf \DateTime) {
+        } elseif ($updated_since instanceof \DateTime) {
             return '?updated_since=' . urlencode($updated_since->format("Y-m-d G:i"));
         } else {
             return '?updated_since=' . urlencode($updated_since);
@@ -2516,11 +2526,28 @@ use Harvest\Model\Invoice\Filter;
     {
         $this->resetHeader();
         $ch = curl_init();
-        curl_setopt($ch, CURLOPT_URL, "https://" . $this->_account . ".harvestapp.com/" . $url);
+        if ($this->token) {
+            $url = $url . '?access_token=' . $this->token;
+            curl_setopt($ch, CURLOPT_URL, "https://api.harvestapp.com/" . $url);
+        } else {
+            curl_setopt($ch, CURLOPT_URL, "https://" . $this->_account . ".harvestapp.com/" . $url);
+        }
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
         curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1);
         curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-        curl_setopt($ch, CURLOPT_HTTPHEADER, array('User-Agent: PHP Wrapper Library for Harvest API', 'Accept: application/xml', 'Content-Type: application/xml', 'Authorization: Basic (' . base64_encode($this->_user . ":" . $this->_password). ')'));
+        if ($this->token) {
+            curl_setopt($ch, CURLOPT_HTTPHEADER, array(
+                'User-Agent: Cogitools PHP Wrapper Library for Harvest API',
+                'Accept: application/json'
+            ));
+        } else {
+            curl_setopt($ch, CURLOPT_HTTPHEADER, array(
+                'User-Agent: PHP Wrapper Library for Harvest API',
+                'Accept: application/xml',
+                'Content-Type: application/xml',
+                'Authorization: Basic (' . base64_encode($this->_user . ":" . $this->_password). ')'
+            ));
+        }
         curl_setopt($ch, CURLOPT_HEADERFUNCTION, array(&$this,'parseHeader'));
 
         return $ch;
@@ -2712,7 +2739,7 @@ use Harvest\Model\Invoice\Filter;
         $xmlDoc = new \DOMDocument();
         $xmlDoc->loadXML($xml);
         $x = $xmlDoc->documentElement;
-        foreach ($x->childNodes AS $item) {
+        foreach ($x->childNodes as $item) {
             $item = $this->parseNode($item);
             if (! is_null($item)) {
                 $items[$item->id()] = $item;
@@ -2747,13 +2774,13 @@ use Harvest\Model\Invoice\Filter;
         switch ($node->nodeName) {
             case "expense-category":
                 $item = new ExpenseCategory();
-            break;
+                break;
             case "client":
                 $item = new Client();
-            break;
+                break;
             case "contact":
                 $item = new Contact();
-            break;
+                break;
             case "add":
                 $children = $node->childNodes;
                 foreach ($children as $child) {
@@ -2762,51 +2789,52 @@ use Harvest\Model\Invoice\Filter;
                         break;
                     }
                 }
+                // no break
             case "day_entry":
             case "day-entry":
                 $item = new DayEntry();
-            break;
+                break;
             case "expense":
                 $item = new Expense();
-            break;
+                break;
             case "invoice":
                 $item = new Invoice();
-            break;
+                break;
             case "invoice-item-category":
                 $item = new InvoiceItemCategory();
-            break;
+                break;
             case "invoice-message":
                 $item = new InvoiceMessage();
-            break;
+                break;
             case "payment":
                 $item = new Payment();
-            break;
+                break;
             case "project":
                 $item = new Project();
-            break;
+                break;
             case "task":
                 $item = new Task();
-            break;
+                break;
             case "user":
                 $item = new User();
-            break;
+                break;
             case "user-assignment":
                 $item = new UserAssignment();
-            break;
+                break;
             case "task-assignment":
                 $item = new TaskAssignment();
-            break;
+                break;
             case "daily":
                 $item = new DailyActivity();
-            break;
+                break;
             case "timer":
                 $item = new Timer();
-            break;
+                break;
             case "hash":
                 $item = new Throttle();
-            break;
+                break;
             default:
-            break;
+                break;
         }
         if (! is_null($item)) {
             $item->parseXml($node);
@@ -2821,7 +2849,7 @@ use Harvest\Model\Invoice\Filter;
      * @param  string      $header Header line text to be parsed
      * @return int
      */
-    protected function parseHeader($ch,$header)
+    protected function parseHeader($ch, $header)
     {
         $pos = strpos($header, ":");
         $key = substr($header, 0, $pos);
