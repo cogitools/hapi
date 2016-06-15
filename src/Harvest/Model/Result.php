@@ -79,6 +79,11 @@ class Result
         return $this->get( $property);
     }
 
+    public function __call($name, $arguments)
+    {
+        return $this->get($name);
+    }
+
     /**
      * Return the specified property
      *
