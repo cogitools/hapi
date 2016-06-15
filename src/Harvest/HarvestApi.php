@@ -101,6 +101,7 @@ class HarvestApi
     public function setReturnDataType($type)
     {
         $this->returnDataType = $type;
+        return $this;
     }
 
     /**
@@ -138,6 +139,7 @@ class HarvestApi
     public function setToken($token)
     {
         $this->token = $token;
+        return $this;
     }
 
     /**
