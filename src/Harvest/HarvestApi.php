@@ -22,6 +22,7 @@ use Harvest\Model\Timer;
 use Harvest\Model\Throttle;
 use Harvest\Model\Range;
 use Harvest\Model\Invoice\Filter;
+use Illuminate\Support\Collection;
 
 /**
  * HarvestApi
@@ -1023,6 +1024,12 @@ class HarvestApi
         $url = "people";
 
         return $this->performGet($url, true);
+    }
+
+    public function getActiveUsers()
+    {
+        $users = $this->getUsers();
+
     }
 
     /**
@@ -2745,10 +2752,7 @@ class HarvestApi
     protected function parseItems($xml)
     {
         if ($this->returnDataType == 'json') {
-            if (class_exists('\\Illuminate\\Support\\Collection')) {
-                return new \Illuminate\Support\Collection(json_decode($xml));
-            }
-            return json_decode($xml);
+            return new \Illuminate\Support\Collection(json_decode($xml));
         }
         $items = array();
         $xmlDoc = new \DOMDocument();
