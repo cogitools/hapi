@@ -3,13 +3,12 @@ HaPi – Harvest API
 
 PHP Wrapper Library for the Harvest API.
 
-[![Build Status](https://travis-ci.org/gridonic/hapi.svg?branch=master)](https://travis-ci.org/gridonic/hapi)
-[![Code Climate](https://codeclimate.com/github/gridonic/hapi/badges/gpa.svg)](https://codeclimate.com/github/gridonic/hapi)
-[![Dependency Status](https://www.versioneye.com/user/projects/54b59bf305064657eb0000c1/badge.svg?style=flat)](https://www.versioneye.com/user/projects/54b59bf305064657eb0000c1)
-[![Total Downloads](https://poser.pugx.org/gridonic/hapi/d/total.svg)](https://packagist.org/packages/gridonic/hapi)
-[![Latest Stable Version](https://poser.pugx.org/gridonic/hapi/v/stable.svg)](https://packagist.org/packages/gridonic/hapi)
-[![Latest Unstable Version](https://poser.pugx.org/gridonic/hapi/v/unstable.svg)](https://packagist.org/packages/gridonic/hapi)
-[![License](https://poser.pugx.org/gridonic/hapi/license.svg)](https://packagist.org/packages/gridonic/hapi)
+Installation
+-----
+
+`composer require cogitools/hapi`
+
+This package includes `tightenco\collect` a standalone version of `Illuminate\Support\Collection` used in Laravel.
 
 Usage
 -----
@@ -20,10 +19,9 @@ New Way (using access_token provided by oAuth2):
 <?php
 require __DIR__ . '/vendor/autoload.php';
 
-$api = new Harvest\HarvestApi();
-$api->setToken($token);
-
-$result = $api->getClient(12345);
+$users = (new Harvest\HarvestAPI)
+    ->setToken($token)
+    ->getActiveUsers();
 ```
 
 Old way (using password):
@@ -67,4 +65,4 @@ Submitting bugs and feature requests
 ------------------------------------
 
 Since this is a rewrite, it is very well possible that some parts of the library
-do not work yet or anymore. Bugs and feature request are tracked on [GitHub](https://github.com/gridonic/hapi/issues)
+do not work yet or anymore. Bugs and feature request are tracked on [GitHub](https://github.com/cogitools/hapi/issues)
