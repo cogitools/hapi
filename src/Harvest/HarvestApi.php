@@ -76,6 +76,8 @@ class HarvestApi
      */
     protected $token = null;
 
+    protected $returnDataType = 'xml';
+
     /**
      * @var string Harvest Account Name
      */
@@ -95,6 +97,11 @@ class HarvestApi
      * @var array Header Associated Array
      */
     protected $_headers;
+
+    public function setReturnDataType($type)
+    {
+        $this->returnDataType = $type;
+    }
 
     /**
      * set Harvest User Name
@@ -2735,6 +2742,9 @@ class HarvestApi
      */
     protected function parseItems($xml)
     {
+        if ($this->returnDataType == 'json') {
+            return json_decode($xml);
+        }
         $items = array();
         $xmlDoc = new \DOMDocument();
         $xmlDoc->loadXML($xml);
@@ -2756,6 +2766,9 @@ class HarvestApi
      */
     protected function parseItem($xml)
     {
+        if ($this->returnDataType == 'json') {
+            return json_decode($xml);
+        }
         $xmlDoc = new \DOMDocument();
         $xmlDoc->loadXML($xml);
         $itemNode = $xmlDoc->documentElement;
