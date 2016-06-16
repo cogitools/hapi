@@ -143,6 +143,20 @@ class HarvestApi
         return $this;
     }
 
+    public function refreshToken($refreshToken)
+    {
+        $url = 'oauth2/token';
+
+        $data = [
+            "refresh_token" => $refreshToken,
+            "client_id" =>     config('services.harvest.client_id'),
+            "client_secret" => config('services.harvest.client_secret'),
+            "grant_type" =>    "refresh_token"
+        ];
+
+        $this->performPost($url, $data, $multi = "id");
+    }
+
     /**
      * set Harvest Account
      *
@@ -434,7 +448,7 @@ class HarvestApi
 
     public function getActiveClients($updated_since = null)
     {
-        return $this->getClients($updated_since)->get('data')
+        return $this->getClients($updated_since)
             ->filter(function ($client) {
                 return $client->client->active == true;
             });
@@ -740,7 +754,7 @@ class HarvestApi
 
     public function getActiveProjects($updated_since = null)
     {
-        return $this->getProjects($updated_since)->get('data')
+        return $this->getProjects($updated_since)
             ->filter(function ($project) {
                 return $project->project->active == true;
             });
@@ -1044,7 +1058,7 @@ class HarvestApi
 
     public function getActiveUsers()
     {
-        return $this->getUsers()->get('data')
+        return $this->getUsers()
             ->filter(function ($user) {
                 return $user->user->is_active == true;
             });
@@ -2548,7 +2562,7 @@ class HarvestApi
             }
         }
 
-        return new Result($code, $data, $this->_headers);
+        return (new Result($code, $data, $this->_headers))->data();
     }
 
     /**
