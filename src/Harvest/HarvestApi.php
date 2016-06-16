@@ -453,6 +453,7 @@ class HarvestApi
     public function getActiveClients($updated_since = null)
     {
         return $this->getClients($updated_since)
+            ->data()
             ->filter(function ($client) {
                 return $client->client->active == true;
             });
@@ -759,6 +760,7 @@ class HarvestApi
     public function getActiveProjects($updated_since = null)
     {
         return $this->getProjects($updated_since)
+            ->data()
             ->filter(function ($project) {
                 return $project->project->active == true;
             });
@@ -934,6 +936,13 @@ class HarvestApi
         return $this->performGet($url, true);
     }
 
+    public function getActiveTasks()
+    {
+        return $this->getTasks()->data()->filter(function ($task) {
+            return $task->task->deactivated == false;
+        });
+    }
+
     /**
      * get a single task
      *
@@ -1063,6 +1072,7 @@ class HarvestApi
     public function getActiveUsers()
     {
         return $this->getUsers()
+            ->data()
             ->filter(function ($user) {
                 return $user->user->is_active == true;
             });
