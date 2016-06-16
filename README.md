@@ -10,8 +10,36 @@ Installation
 
 This package includes `tightenco\collect` a standalone version of `Illuminate\Support\Collection` used in Laravel.
 
+Important Notes
+-----
+> Currently this is mostly to be used with Laravel. It relies on the config helper function in the HarvestAPI file, so you have to have config settings in your services.php for harvest.
+
 Usage
 -----
+
+#### Example Controller Use
+```
+$token = App\ServiceToken::find(6);
+    
+$users = (new Harvest\HarvestAPI)
+    ->setToken($token->token)
+    ->getUsers();
+
+if ($users->isSuccess()) {
+    dd($users->data());
+} else {
+    $newToken = (new Harvest\HarvestAPI)
+        ->refreshToken($token->refresh_token)
+        ->data();
+
+    $token->token = $newToken->access_token;
+    $token->refresh_token = $newToken->refresh_token;
+    $token->save();
+}
+```
+
+
+
 
 New Way (using access_token provided by oAuth2):
 
