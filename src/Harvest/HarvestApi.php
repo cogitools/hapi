@@ -77,6 +77,8 @@ class HarvestApi
      */
     protected $token = null;
 
+    protected $refreshingToken = null;
+
     protected $returnDataType = 'json';
 
     /**
@@ -145,6 +147,8 @@ class HarvestApi
 
     public function refreshToken($refreshToken)
     {
+        $this->refreshingToken = true;
+
         $url = 'oauth2/token';
 
         $data = [
@@ -154,7 +158,7 @@ class HarvestApi
             "grant_type" =>    "refresh_token"
         ];
 
-        $this->performPost($url, $data, $multi = "id");
+        return $this->performPost($url, $data, $multi = "id");
     }
 
     /**
@@ -2562,7 +2566,7 @@ class HarvestApi
             }
         }
 
-        return (new Result($code, $data, $this->_headers))->data();
+        return (new Result($code, $data, $this->_headers));
     }
 
     /**
@@ -2574,7 +2578,9 @@ class HarvestApi
     {
         $this->resetHeader();
         $ch = curl_init();
-        if ($this->token) {
+        if ($this->refreshingToken) {
+            curl_setopt($ch, CURLOPT_URL, "https://api.harvestapp.com/" . $url);
+        } elseif ($this->token) {
             $url = $url . '?access_token=' . $this->token;
             curl_setopt($ch, CURLOPT_URL, "https://api.harvestapp.com/" . $url);
         } else {
@@ -2583,7 +2589,7 @@ class HarvestApi
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
         curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1);
         curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-        if ($this->token) {
+        if ($this->token || $this->refreshingToken) {
             curl_setopt($ch, CURLOPT_HTTPHEADER, array(
                 'User-Agent: Cogitools PHP Wrapper Library for Harvest API',
                 'Accept: application/json'
