@@ -1,7 +1,7 @@
 {
     "name": "cogitools/hapi",
     "type": "library",
-    "description": "Cogitools PHP Wrapper Library for the Harvest API",
+    "description": "PHP Wrapper Library for the Harvest API using oAuth tokens",
     "keywords": ["api", "harvest"],
     "homepage": "http://github.com/cogitools/hapi",
     "license": "GPL-3.0",
