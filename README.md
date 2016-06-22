@@ -1,7 +1,7 @@
 HaPi – Harvest API
 ==================
 
-PHP Wrapper Library for the Harvest API.
+Fork of `gridonic/hapi` PHP Wrapper Library for the Harvest API. Adds the use of oAuth Tokens.
 
 Installation
 -----
