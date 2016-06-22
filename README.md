@@ -12,7 +12,24 @@ This package includes `tightenco\collect` a standalone version of `Illuminate\Su
 
 Important Notes
 -----
-> Currently this is mostly to be used with Laravel. It relies on the config helper function in the HarvestAPI file, so you have to have config settings in your services.php for harvest.
+> Currently this is mostly to be used with Laravel 5. It relies on the config helper function in the HarvestAPI file, so you have to have config settings in your services.php for harvest.
+
+Add this to the array in `config/services.php`:
+```
+'harvest' => [
+    'client_id' => env('HARVEST_CLIENT_ID'),
+    'client_secret' => env('HARVEST_SECRET'),
+    'redirect' => env('HARVEST_CALLBACK'),
+],
+```
+
+Then in your `.env` file add the following: (Obviously with the appropriate tokens)
+```
+HARVEST_CLIENT_ID=
+HARVEST_SECRET=
+HARVEST_CALLBACK=
+```
+
 
 Usage
 -----
@@ -51,6 +68,18 @@ $users = (new Harvest\HarvestAPI)
     ->setToken($token)
     ->getActiveUsers();
 ```
+
+> Also, in this fork, the data return type is set to `json`, this can be changed by using the following:
+
+```
+$harvest = (new Harvest\HarvestAPI)->setReturnDataType('xml');
+```
+OR:
+```
+$harvest = (new Harvest\HarvestAPI)->setReturnDataType('json');
+```
+
+As of now, it is nothing fancy, so pretty much if you don't set anything, `json` is returned, if you set the return type to anything other than `json`, `xml` will be returned. Basically, some `ifs` are used to verify that the data type is still `json` if it is any other string, `xml` will be returned.
 
 Old way (using password):
 ```php
