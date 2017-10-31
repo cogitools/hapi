@@ -212,6 +212,26 @@ class HarvestApi
         return $this->performGet($url, false);
     }
 
+    /**
+     * get general account information via who_am_i enpoint
+     *
+     * <code>
+     * $api = new HarvestApi();
+     * $result = $api->getWhoAmI();
+     * if ($result->isSuccess()) {
+     *     $info = $result->data;
+     * }
+     * </code>
+     *
+     * @return Result
+     */
+    public function getWhoAmI()
+    {
+        $url = "account/who_am_i";
+
+        return $this->performGet($url, false);
+    }
+
     /*--------------------------------------------------------------*/
     /*--------------------- Time Tracking API ----------------------*/
     /*--------------------------------------------------------------*/
