@@ -8,8 +8,8 @@ Caution - Deprication Coming - January 1st, 2019
 Please be aware, this implementation appears to be version 1 of Harvest's API. Harvest has depricated it.
 We will have to update it to version 2 in the near future.
 API documentation is avaible for
-[Version 1](https://help.getharvest.com/api-v1/)
-[Version 2](https://help.getharvest.com/api-v2/)
+[Version 1](https://help.getharvest.com/api-v1/) and
+[Version 2](https://help.getharvest.com/api-v2/).
 
 
 Installation
