@@ -3,9 +3,9 @@ HaPi – Harvest API
 
 Fork of `gridonic/hapi` PHP Wrapper Library for the Harvest API. Adds the use of oAuth Tokens.
 
-Caution - Deprication Coming - January 1st, 2019
+Caution - Deprecation Coming - January 1st, 2019
 -----
-Please be aware, this implementation appears to be version 1 of Harvest's API. Harvest has depricated it.
+Please be aware, this implementation appears to be version 1 of Harvest's API. Harvest has deprecated it.
 We will have to update it to version 2 in the near future.
 API documentation is avaible for
 [Version 1](https://help.getharvest.com/api-v1/) and
