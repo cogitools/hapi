@@ -4,25 +4,24 @@ namespace Harvest;
 
 use Harvest\Model\Client;
 use Harvest\Model\Contact;
+use Harvest\Model\DailyActivity;
 use Harvest\Model\DayEntry;
 use Harvest\Model\Expense;
 use Harvest\Model\ExpenseCategory;
 use Harvest\Model\Invoice;
+use Harvest\Model\Invoice\Filter;
 use Harvest\Model\InvoiceItemCategory;
 use Harvest\Model\InvoiceMessage;
 use Harvest\Model\Payment;
 use Harvest\Model\Project;
+use Harvest\Model\Range;
 use Harvest\Model\Result;
 use Harvest\Model\Task;
+use Harvest\Model\TaskAssignment;
+use Harvest\Model\Throttle;
+use Harvest\Model\Timer;
 use Harvest\Model\User;
 use Harvest\Model\UserAssignment;
-use Harvest\Model\TaskAssignment;
-use Harvest\Model\DailyActivity;
-use Harvest\Model\Timer;
-use Harvest\Model\Throttle;
-use Harvest\Model\Range;
-use Harvest\Model\Invoice\Filter;
-use Illuminate\Support\Collection;
 
 /**
  * HarvestApi
@@ -79,17 +78,25 @@ class HarvestApi
 
     protected $refreshingToken = null;
 
+    protected $redirectUri;
+
+    /** @var string Optional. If not set, will be retrieved from the config file */
+    protected $clientSecret;
+
+    /** @var string Optional. If not set, will be retrieved from the config file */
+    protected $clientId;
+
     protected $returnDataType = 'json';
 
     /**
      * @var string Harvest Account Name
      */
-    protected $_account;
+    protected $account;
 
     /**
      * @var string retry mode for over threshold
      */
-    protected $_mode = "FAIL";
+    protected $mode = "FAIL";
 
     /**
      * @var string harvest root directory
@@ -145,6 +152,21 @@ class HarvestApi
         return $this;
     }
 
+    public function setRedirectUri($uri)
+    {
+        $this->redirectUri = $uri;
+        return $this;
+    }
+
+    public function getAuthorizeUrl()
+    {
+        return "https://$this->account.harvestapp.com/oauth2/authorize?".http_build_query([
+                'client_id'     => $this->clientId,
+                'redirect_uri'  => $this->redirectUri,
+                'response_type' => 'code',
+        ]);
+    }
+
     public function refreshToken($refreshToken)
     {
         $this->refreshingToken = true;
@@ -153,9 +175,25 @@ class HarvestApi
 
         $data = [
             "refresh_token" => $refreshToken,
-            "client_id" =>     config('services.harvest.client_id'),
-            "client_secret" => config('services.harvest.client_secret'),
+            "client_id" =>     $this->getClientId(),
+            "client_secret" => $this->getClientSecret(),
             "grant_type" =>    "refresh_token"
+        ];
+
+        return $this->performPost($url, $data, $multi = "id");
+    }
+
+    public function accessToken($code)
+    {
+
+        $url = 'oauth2/token';
+
+        $data = [
+            "code" =>          $code,
+            "redirect_uri" =>  $this->redirectUri,
+            "client_id" =>     $this->getClientId(),
+            "client_secret" => $this->getClientSecret(),
+            "grant_type" =>    "authorization_token"
         ];
 
         return $this->performPost($url, $data, $multi = "id");
@@ -170,11 +208,12 @@ class HarvestApi
      * </code>
      *
      * @param  string $account Account Name
-     * @return void
+     * @return $this
      */
     public function setAccount($account)
     {
-        $this->_account = $account;
+        $this->account = $account;
+        return $this;
     }
 
     /**
@@ -190,7 +229,7 @@ class HarvestApi
      */
     public function setRetryMode($mode)
     {
-        $this->_mode = $mode;
+        $this->mode = $mode;
     }
 
     /**
@@ -2579,7 +2618,7 @@ class HarvestApi
             $ch = $this->generateCurl($url);
             $data = curl_exec($ch);
             $code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-            if ($this->_mode == HarvestApi::RETRY && $code == "503") {
+            if ($this->mode == HarvestApi::RETRY && $code == "503") {
                 $success = false;
                 sleep($this->_headers['Retry-After']);
             } else {
@@ -2614,7 +2653,7 @@ class HarvestApi
             $url = $url . '?access_token=' . $this->token;
             curl_setopt($ch, CURLOPT_URL, "https://api.harvestapp.com/" . $url);
         } else {
-            curl_setopt($ch, CURLOPT_URL, "https://" . $this->_account . ".harvestapp.com/" . $url);
+            curl_setopt($ch, CURLOPT_URL, "https://" . $this->account . ".harvestapp.com/" . $url);
         }
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
         curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1);
@@ -2652,7 +2691,7 @@ class HarvestApi
             $ch = $this->generatePutCurl($url, $data);
             $rData = curl_exec($ch);
             $code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-            if ($this->_mode == HarvestApi::RETRY && $code == "503") {
+            if ($this->mode == HarvestApi::RETRY && $code == "503") {
                 $success = false;
                 sleep($this->_headers['Retry-After']);
             } else {
@@ -2681,7 +2720,7 @@ class HarvestApi
      /**
       * perform http post command
       * @param  string $url url of server to process request
-      * @param  string $data data to be sent
+      * @param  string|array $data data to be sent
       * @param string $multi
       * @return Result
       */
@@ -2694,7 +2733,7 @@ class HarvestApi
             $ch = $this->generatePostCurl($url, $data);
             $rData = curl_exec($ch);
             $code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-            if ($this->_mode == HarvestApi::RETRY && $code == "503") {
+            if ($this->mode == HarvestApi::RETRY && $code == "503") {
                 $success = false;
                 sleep($this->_headers['Retry-After']);
             } else {
@@ -2745,7 +2784,7 @@ class HarvestApi
             $ch = $this->generateDeleteCurl($url);
             $data = curl_exec($ch);
             $code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-            if ($this->_mode == HarvestApi::RETRY && $code == "503") {
+            if ($this->mode == HarvestApi::RETRY && $code == "503") {
                 $success = false;
                 sleep($this->_headers['Retry-After']);
             } else {
@@ -2785,7 +2824,7 @@ class HarvestApi
             $ch = $this->generateMultiPartCurl($url, $data);
             $rData = curl_exec($ch);
             $code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-            if ($this->_mode == HarvestApi::RETRY && $code == "503") {
+            if ($this->mode == HarvestApi::RETRY && $code == "503") {
                 $success = false;
                 sleep($this->_headers['Retry-After']);
             } else {
@@ -3007,4 +3046,27 @@ class HarvestApi
 
         return self::$_path;
     }
+
+    public function setClientSecret($secret)
+    {
+        $this->clientSecret = $secret;
+        return $this;
+    }
+
+    protected function getClientSecret()
+    {
+        return $this->clientSecret?: config('services.harvest.client_secret');
+    }
+
+    public function setClientId($id)
+    {
+        $this->clientId = $id;
+        return $this;
+    }
+
+    protected function getClientId()
+    {
+        return $this->clientId?: config('services.harvest.client_id');
+    }
 }
+
