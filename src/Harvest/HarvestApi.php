@@ -193,10 +193,10 @@ class HarvestApi
             "redirect_uri" =>  $this->redirectUri,
             "client_id" =>     $this->getClientId(),
             "client_secret" => $this->getClientSecret(),
-            "grant_type" =>    "authorization_token"
+            "grant_type" =>    "authorization_code"
         ];
 
-        return $this->performPost($url, $data, $multi = "id");
+        return $this->performPost($url, $data, $multi = "id", true);
     }
 
     /**
@@ -2648,12 +2648,13 @@ class HarvestApi
         $this->resetHeader();
         $ch = curl_init();
         if ($this->refreshingToken) {
-            curl_setopt($ch, CURLOPT_URL, "https://api.harvestapp.com/" . $url);
+            curl_setopt($ch, CURLOPT_URL, "https://api.harvestapp.com/$url");
         } elseif ($this->token) {
             $url = $url . '?access_token=' . $this->token;
-            curl_setopt($ch, CURLOPT_URL, "https://api.harvestapp.com/" . $url);
+            $account = $this->account?: 'api';
+            curl_setopt($ch, CURLOPT_URL, "https://$account.harvestapp.com/$url");
         } else {
-            curl_setopt($ch, CURLOPT_URL, "https://" . $this->account . ".harvestapp.com/" . $url);
+            curl_setopt($ch, CURLOPT_URL, "https://$this->account.harvestapp.com/$url");
         }
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
         curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1);
@@ -2724,13 +2725,13 @@ class HarvestApi
       * @param string $multi
       * @return Result
       */
-    protected function performPost($url, $data, $multi = "id")
+    protected function performPost($url, $data, $multi = "id", $urlencoded = false)
     {
         $rData = null;
         $code = null;
         $success = false;
         while (! $success) {
-            $ch = $this->generatePostCurl($url, $data);
+            $ch = $this->generatePostCurl($url, $data, $urlencoded);
             $rData = curl_exec($ch);
             $code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
             if ($this->mode == HarvestApi::RETRY && $code == "503") {
@@ -2758,14 +2759,20 @@ class HarvestApi
     /**
      * generate cURL get request
      * @param $url
-     * @param $data Array of Post Data
+     * @param $data array of Post Data
+     * @param $urlencoded bool if this request should be x-www-form-urlencoded instead of a multipart form
      * @return resource cURL Handler
      */
-    protected function generatePostCurl($url, $data)
+    protected function generatePostCurl($url, $data, $urlencoded = false)
     {
         $ch = $this->generateCurl($url);
         curl_setopt($ch, CURLOPT_POST, 1);
-        curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
+        if ($urlencoded) {
+            curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($data));
+            curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/x-www-form-urlencoded']);
+        } else {
+            curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
+        }
 
         return $ch;
     }
@@ -3069,4 +3076,5 @@ class HarvestApi
         return $this->clientId?: config('services.harvest.client_id');
     }
 }
+
 
