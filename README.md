@@ -3,9 +3,9 @@ HaPi – Harvest API
 
 Fork of `gridonic/hapi` PHP Wrapper Library for the Harvest API. Adds the use of oAuth Tokens.
 
-Caution - Deprication Coming - January 1st, 2019
+Caution - Deprecation Coming - January 1st, 2019
 -----
-Please be aware, this implementation appears to be version 1 of Harvest's API. Harvest has depricated it.
+Please be aware, this implementation appears to be version 1 of Harvest's API. Harvest has deprecated it.
 We will have to update it to version 2 in the near future.
 API documentation is avaible for
 [Version 1](https://help.getharvest.com/api-v1/) and
@@ -19,9 +19,11 @@ Installation
 
 This package includes `tightenco\collect` a standalone version of `Illuminate\Support\Collection` used in Laravel.
 
-Important Notes
------
-> Currently this is mostly to be used with Laravel 5. It relies on the config helper function in the HarvestAPI file, so you have to have config settings in your services.php for harvest.
+### Configuration
+
+You can either configure this as a Laravel service or as a standalone library:
+
+#### Laravel service
 
 Add this to the array in `config/services.php`:
 ```
@@ -39,11 +41,26 @@ HARVEST_SECRET=
 HARVEST_CALLBACK=
 ```
 
+#### Standalone library
+
+Simply store the CLIENT_ID and CLIENT_SECRET somewhere safe (you'll probably have some sort of
+config or env file in your app, right?), and add them like this:
+
+```php
+$harvest = (new Harvest\HarvestAPI)
+	->setClientId(HARVEST_CLIENT_ID)
+	->setClientSecret(HARVEST_CLIENT_SECRET)
+	->setAccount(HARVEST_ACCOUNT);
+```
 
 Usage
 -----
 
-#### Example Controller Use
+### Example OAuth2 authentication
+TODO. Redirect your user to `$harvest->getAuthorizeUrl()` and store the final token from 
+`$harvest->accessToken($code)` somewhere safe. It will be used for all other calls.
+
+### Example Controller Use
 ```
 $token = App\ServiceToken::find(6);
     
