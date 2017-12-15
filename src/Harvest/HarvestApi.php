@@ -2659,21 +2659,25 @@ class HarvestApi
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
         curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1);
         curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-        if ($this->token || $this->refreshingToken) {
+        if (strpos($url, 'oauth') !== false) { //the only requests that need to be sent as JSON
             curl_setopt($ch, CURLOPT_HTTPHEADER, array(
                 'User-Agent: Cogitools PHP Wrapper Library for Harvest API',
                 'Accept: application/json'
             ));
         } else {
-            curl_setopt($ch, CURLOPT_HTTPHEADER, array(
+            $headers = array(
                 'User-Agent: PHP Wrapper Library for Harvest API',
                 'Accept: application/xml',
-                'Content-Type: application/xml',
-                'Authorization: Basic (' . base64_encode($this->_user . ":" . $this->_password). ')'
-            ));
+                'Content-Type: application/xml'
+            );
+            if (!$this->token) {
+                $headers[] = 'Authorization: Basic (' . base64_encode("$this->_user:$this->_password"). ')';
+            }
+            curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
         }
         curl_setopt($ch, CURLOPT_HEADERFUNCTION, array(&$this,'parseHeader'));
 
+//        var_dump($this->token, curl_getinfo($ch));
         return $ch;
     }
 
@@ -2734,6 +2738,7 @@ class HarvestApi
             $ch = $this->generatePostCurl($url, $data, $urlencoded);
             $rData = curl_exec($ch);
             $code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+//            (var_dump($code, $rData));
             if ($this->mode == HarvestApi::RETRY && $code == "503") {
                 $success = false;
                 sleep($this->_headers['Retry-After']);
@@ -3076,5 +3081,4 @@ class HarvestApi
         return $this->clientId?: config('services.harvest.client_id');
     }
 }
-
 
