@@ -2655,7 +2655,8 @@ class HarvestApi
         if ($this->refreshingToken) {
             curl_setopt($ch, CURLOPT_URL, "https://api.harvestapp.com/$url");
         } elseif ($this->token) {
-            $url = $url . '?access_token=' . $this->token;
+            $qs_token = 'access_token=' . $this->token;
+            $url = $url . (strpos($url, '?') === false? '?' : '&') . $qs_token;
             $account = $this->account?: 'api';
             curl_setopt($ch, CURLOPT_URL, "https://$account.harvestapp.com/$url");
         } else {
