@@ -1,6 +1,4 @@
 <?php
-
-
 namespace Harvest\Model;
 
 use Harvest\Exception\HarvestException;
@@ -15,25 +13,21 @@ use Harvest\Exception\HarvestException;
 /**
  * Harvest Result Object
  *
- * <b>Properties</b>
- * <ul>
- *   <li>code</li>
- *   <li>data</li>
- *   <li>Server</li>
- *   <li>Date</li>
- *   <li>Content-Type</li>
- *   <li>Connection</li>
- *   <li>Status</li>
- *   <li>X-Powered-By</li>
- *   <li>ETag</li>
- *   <li>X-Served-From</li>
- *   <li>X-Runtime</li>
- *   <li>Content-Length</li>
- *   <li>Location</li>
- *   <li>Hint</li>
- * </ul>
- *
+ * @property int code
  * @property array|mixed data
+ *
+ * @property string Server
+ * @property string Date
+ * @property string Content-Type
+ * @property string Connection
+ * @property string Status
+ * @property string X-Powered-By
+ * @property string ETag
+ * @property string X-Served-From
+ * @property string X-Runtime
+ * @property string Content-Length
+ * @property string Location
+ * @property string Hint
  */
 class Result
 {
@@ -165,3 +159,4 @@ class Result
     }
 
 }
+
