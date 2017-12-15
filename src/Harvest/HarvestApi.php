@@ -310,6 +310,35 @@ class HarvestApi
     }
 
     /**
+     * gets daily activity for assigned user and just time entries for them
+     *
+     * <code>
+     * $user_id = 456455325;
+     * $onlyTimeEntries = true;
+     *
+     * $api = new HarvestApi();
+     *
+     * $result = $api->getUserDailyActivity($user_id, $onlyTimeEntries);
+     * if ($result->isSuccess()) {
+     *     $entries =  $result->data;
+     * }
+     * </code>
+     * @param int $user_id
+     * @param bool $slim
+     * @return Result
+     */
+    public function getUserDailyActivity($user_id, $onlyTimeEntries = false)
+    {
+        $url = "daily?of_user=" . $user_id;
+  
+        if ($onlyTimeEntries) {
+            $url .= "&slim=1";
+        }
+  
+        return $this->performGet($url, false);
+    }
+    
+    /**
      * gets the entry specified
      *
      * <code>
@@ -1972,7 +2001,33 @@ class HarvestApi
 
         return $this->performGet($url, true);
     }
+    
+    /**
+     * get all project expenses for given time range
+     *
+     * <code>
+     * $range = new Range("20090712", "20090719");
+     * $user_id = 11111;
+     *
+     * $api = new HarvestApi();
+     *
+     * $result = $api->getProjectExpenses($project_id, $range);
+     * if ($result->isSuccess()) {
+     *     $expenses = $result->data;
+     * }
+     * </code>
+     *
+     * @param  int    $project_id Project Identifier
+     * @param  Range  $range   Time Range
+     * @return Result
+     */
+    public function getProjectExpenses($project_id, Range $range)
+    {
+        $url = "projects/" . $project_id . "/expenses?from=" . $range->from() . '&to=' . $range->to();
 
+        return $this->performGet($url, true);
+    }
+     
     /*--------------------------------------------------------------*/
     /*------------------------ Invoices API ------------------------*/
     /*--------------------------------------------------------------*/
