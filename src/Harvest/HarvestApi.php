@@ -22,6 +22,7 @@ use Harvest\Model\Throttle;
 use Harvest\Model\Timer;
 use Harvest\Model\User;
 use Harvest\Model\UserAssignment;
+use Illuminate\Support\Collection;
 
 /**
  * HarvestApi
@@ -86,6 +87,10 @@ class HarvestApi
     /** @var string Optional. If not set, will be retrieved from the config file */
     protected $clientId;
 
+    /**
+     * @var string Used to dictate how to parse responses.
+     * @see parseItem, parseItems
+     * @deprecated Now gone, in favor of automatic recognition. */
     protected $returnDataType = 'json';
 
     /**
@@ -1622,7 +1627,7 @@ class HarvestApi
      *
      * @param  int            $project_id         Project Identifier
      * @param  int            $user_assignment_id User Assignment Identifier
-     * @return UserAssignment
+     * @return UserAssignment|Result
      */
     public function getProjectUserAssignment($project_id, $user_assignment_id)
     {
@@ -2865,17 +2870,17 @@ class HarvestApi
 
     /**
      * parse XML list
-     * @param  string $xml XML String
-     * @return array
+     * @param  string $payload XML String
+     * @return array|Collection
      */
-    protected function parseItems($xml)
+    protected function parseItems($payload)
     {
-        if ($this->returnDataType == 'json') {
-            return new \Illuminate\Support\Collection(json_decode($xml));
+        if (!$this->payloadIsXml($payload)) {
+            return new Collection(json_decode($payload));
         }
         $items = array();
         $xmlDoc = new \DOMDocument();
-        $xmlDoc->loadXML($xml);
+        $xmlDoc->loadXML($payload);
         $x = $xmlDoc->documentElement;
         foreach ($x->childNodes as $item) {
             $item = $this->parseNode($item);
@@ -2889,16 +2894,16 @@ class HarvestApi
 
     /**
      * parse XML item
-     * @param  string $xml XML String
+     * @param  string $payload XML String
      * @return mixed
      */
-    protected function parseItem($xml)
+    protected function parseItem($payload)
     {
-        if ($this->returnDataType == 'json') {
-            return json_decode($xml);
+        if (!$this->payloadIsXml($payload)) {
+            return json_decode($payload);
         }
         $xmlDoc = new \DOMDocument();
-        $xmlDoc->loadXML($xml);
+        $xmlDoc->loadXML($payload);
         $itemNode = $xmlDoc->documentElement;
 
         return $this->parseNode($itemNode);
@@ -3079,6 +3084,10 @@ class HarvestApi
     protected function getClientId()
     {
         return $this->clientId?: config('services.harvest.client_id');
+    }
+
+    protected function payloadIsXml($payload) {
+       return strpos($payload, '<?xml') !== false;
     }
 }
 
