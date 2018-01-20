@@ -13,36 +13,38 @@ namespace Harvest\Model;
 /**
  * Harvest Project Object
  *
- * <b>Properties</b>
- * <ul>
- *  <li>active</li>
- *  <li>active-task-assignments-count</li>
- *  <li>active-user-assignments-count</li>
- *  <li>basecamp-id</li>
- *  <li>bill-by</li>
- *  <li>billable</li>
- *  <li>budget</li>
- *  <li>budget-by</li>
- *  <li>cache-version</li>
- *  <li>client-id</li>
- *  <li>code</li>
- *  <li>cost-budget</li>
- *  <li>cost-budget-include-expenses</li>
- *  <li>created-at</li>
- *  <li>fees</li>
- *  <li>highrise-deal-id</li>
- *  <li>hourly-rate</li>
- *  <li>id</li>
- *  <li>name</li>
- *  <li>notify-when-over-budget</li>
- *  <li>over-budget-notification-percentage</li>
- *  <li>over-budget-notified-at</li>
- *  <li>show-budget-to-all</li>
- *  <li>estimate</li>
- *  <li>estimate-by</li>
- *  <li>notes</li>
- * </ul>
- *
+ * @property int $id
+ * @property int $client_id
+ * @property string $name
+ * @property string $code
+ * @property string $active "true" or "false"
+ * @property string $active_task_assignments_count deprecated?
+ * @property string $active_user_assignments_count deprecated?
+ * @property string $basecamp_id deprecated?
+ * @property string $bill_by
+ * @property string $billable "true" or "false"
+ * @property string $budget
+ * @property string $budget_by
+ * @property string $cache_version deprecated?
+ * @property string $cost_budget
+ * @property string $cost_budget_include_expenses "true" or "false"
+ * @property string $created_at ISO timestamp
+ * @property string $updated_at ISO timestamp
+ * @property string $starts_on ISO timestamp
+ * @property string $ends_on ISO timestamp
+ * @property string $fees deprecated?
+ * @property string $highrise_deal_id deprecated?
+ * @property string $hourly_rate
+ * @property string $notify_when_over_budget "true" or "false"
+ * @property float $over_budget_notification_percentage
+ * @property string $over_budget_notified_at
+ * @property string $show_budget_to_all "true" or "false"
+ * @property string $estimate
+ * @property string $estimate_by
+ * @property string $is_fixed_fee "true" or "false"
+ * @property string $hint_earliest_record_at "true" or "false"
+ * @property string $hint_latest_record_at "true" or "false"
+ * @property string $notes
  */
 class Project extends Harvest
 {
@@ -66,10 +68,8 @@ class Project extends Harvest
     {
         if ($property == "tasks") {
             return $this->_tasks;
-        } elseif (array_key_exists($property, $this->_values)) {
-            return $this->_values[$property];
         } else {
-            return null;
+            return parent::get($property);
         }
 
     }
@@ -86,7 +86,7 @@ class Project extends Harvest
         if ($property == "tasks") {
             $this->_tasks = $value;
         } else {
-            $this->_values[$property] = $value;
+            parent::set($property, $value);
         }
     }
 
