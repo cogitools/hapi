@@ -174,8 +174,6 @@ class HarvestApi
 
     public function refreshToken($refreshToken)
     {
-        $this->refreshingToken = true;
-
         $url = 'oauth2/token';
 
         $data = [
@@ -185,7 +183,11 @@ class HarvestApi
             "grant_type" =>    "refresh_token"
         ];
 
-        return $this->performPost($url, $data, $multi = "id");
+        $this->refreshingToken = true;
+        $result = $this->performPost($url, $data, $multi = "id");
+        $this->refreshingToken = false;
+
+        return $result;
     }
 
     public function accessToken($code)
