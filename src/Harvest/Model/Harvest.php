@@ -27,7 +27,7 @@ abstract class Harvest
     /**
      * @var boolean Convert underscores
      */
-    protected $_convert = true;
+    protected $_convert = false;
 
     /**
      * @var array Object Values
@@ -68,6 +68,32 @@ abstract class Harvest
             return null;
         }
 
+    }
+
+    /**
+     * get protected _values array
+     *
+     * @return array
+     */
+    public function values()
+    {
+        if ($this->_convert) {
+            $search = "_";
+            $replace = "-";
+        } else {
+            $search = "-";
+            $replace = "_";
+        }
+
+        foreach (array_keys($this->_values) as $key) {
+            $key_replaced = str_replace($search, $replace, $key);
+            if ($key != $key_replaced) {
+                $this->_values[$key_replaced] = $this->_values[$key];
+                unset($this->_values[$key]);
+            }
+        };
+
+        return $this->_values;
     }
 
     /**
